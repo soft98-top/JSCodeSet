@@ -62,8 +62,10 @@ function exportDir(task_data) {
         if (data1 == "") {
             setTimeout(exportDir(task_data),500);
         }else{
-            let fid = data1.substring(data1.indexOf(':') + 1,data1.indexOf(';'));
-            fuckDownload(fid.split(","));
+            let fidstr = data1.match(/\:([a-z0-9]+);/g);
+            for (let fids of fidstr) {
+                fuckDownload(fids.replace(":","").replace(";","").split(","));
+            }
         }
     });
 }
