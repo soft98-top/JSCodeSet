@@ -159,7 +159,7 @@ function download2zip(urls) {
                 console.log("Zipped and saved files.zip");
             });
             // 删除页面上的下载进度显示
-            document.body.removeChild(info);
+            infoContainer.removeChild(info);
         } else {
             // 如果还有文件未下载完成，则每隔1秒钟检查一次
             setTimeout(check, 1000);
