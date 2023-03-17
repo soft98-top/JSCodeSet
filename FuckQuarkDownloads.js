@@ -67,7 +67,7 @@ function getDownloadUrl(fids,key) {
                 urls[key].push(url);
             }
             fileFlag[key] = true;
-            console.log(urls.join("\n"));
+            console.log(urls[key].join("\n"));
         } else {
             alert("FuckDownload Fail, error: " + data["message"]);
         }
