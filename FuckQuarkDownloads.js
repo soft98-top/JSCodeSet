@@ -90,28 +90,26 @@ function getDownloadUrl4Dir(task_data, retry = 0,key) {
 }
 
 function download2zip(urls) {
-    // 在页面显示下载进度
+    // 下载进度显示区域
+    let infoContainer = document.getElementById("donwloadInfo");
+    if (infoContainer == null) {
+        infoContainer = document.createElement("div");
+        infoContainer.id = "donwloadInfo";
+        infoContainer.style = "position: fixed; top: 0; left: 0; width: 100%; height: 200px; overflow: auto;";
+        document.body.appendChild(infoContainer);
+    }
+    // 在下载进度显示区域显示下载进度
     // 设置样式,变成一个固定在左上的弹窗
     // 内容过多时会自动滚动，有下拉条
-    // 可能存在多个多个执行download2zip的情况，所以id不能重复
+    // 可能存在多个执行download2zip的情况，所以id不能重复
+    // 可能存在多个弹窗，需要并排显示
     let info = document.createElement("div");
     info.id = "downloadInfo" + new Date().getTime();
-    info.style.position = "float";
-    info.style.top = "0";
-    info.style.left = "0";
-    info.style.width = "300px";
-    info.style.height = "200px";
-    info.style.overflow = "auto";
+    info.style = "position: relative; float: left; width: 300px; height: 200px; overflow: auto; border: 1px solid #000; margin: 10px;";
     info.style.backgroundColor = "rgba(0,0,0,0.5)";
-    info.style.color = "white";
-    info.style.padding = "10px";
-    info.style.zIndex = "999999";
-    // 横向浮动
-    info.style.cssFloat = "left";
-    // 纵向浮动
-    info.style.styleFloat = "left";
-    // 添加到页面
-    document.body.appendChild(info);
+    info.style.color = "#fff";
+    // 添加到显示区域
+    infoContainer.appendChild(info);
 
     let fileFlag = 0;
     // 存放正在下载的文件名

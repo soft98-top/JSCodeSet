@@ -5,15 +5,14 @@ let xhr = new XMLHttpRequest();
         if (xhr.readyState == 4 && xhr.status == 200){
             let code = xhr.responseText;
             let script = document.getElementById("FuckQuarkDownloads");
-            if ( script == null) {
-                script = document.createElement('script');
-                script.setAttribute("type", "text/javascript");
-                script.innerHTML = code;
-                script.setAttribute("id", "FuckQuarkDownloads");
-                document.children[0].appendChild(script);
-            }else{
-                script.innerHTML = code;             
+            if ( script != null) {
+                script.remove();
             }
+            script = document.createElement('script');
+            script.setAttribute("type", "text/javascript");
+            script.innerHTML = code;
+            script.setAttribute("id", "FuckQuarkDownloads");
+            document.children[0].appendChild(script);
         }
     }
 xhr.send();
