@@ -7,15 +7,16 @@ function loadScriptSrc(src) {
 // 加载fetch
 loadScriptSrc("https://cdn.bootcss.com/fetch/2.0.4/fetch.min.js");
 // 加载md5
-loadScriptSrc("https://cdn.bootcss.com/blueimp-md5/2.18.0/js/md5.min.js");
+loadScriptSrc("https://cdn.bootcss.com/blueimp-md5/2.18.0/js/md5.js");
 // 加载uuid
 loadScriptSrc("https://cdn.bootcss.com/uuid/8.3.2/uuid.min.js");
 
 function getAccount() {
     // 用户输入用户名，默认为随机不重复用户名（时间戳编码，截取前10位）
-    let username = prompt("请输入用户名：", "v" + Date.now().toString(36).substr(0, 10)) + "@just.vip";
+    let username = prompt("请输入用户名：", Date.now().toString(36).substr(0, 10)) + "@just.vip";
     // 用户输入密码，默认为用户名+随机码（3位字符）, md5加密
     let pwd = prompt("请输入密码：", username + Math.random().toString(36).substr(2, 3));
+    // md5 not defined
     password = md5(pwd);
     // deviceId为随机生成的UUID
     let deviceId = uuid.v4();
@@ -25,8 +26,10 @@ function getAccount() {
         "language": navigator.language,
         "vendor": navigator.vendor
     }
+    // 获取当前窗口域名
+    let domain = window.location.host;
     // 请求注册接口，获取账号
-    fetch("https://www.neat-reader.cn/app/api_v2/registerAndGetTrialMembership", {
+    fetch("https://" + domain +"/app/api_v2/registerAndGetTrialMembership", {
         "headers": {
             "accept": "application/json, text/javascript, */*; q=0.01",
             "accept-language": "zh-CN,zh;q=0.9",
