@@ -13,10 +13,16 @@ loadScriptSrc("https://cdn.bootcss.com/uuid/8.3.2/uuid.min.js");
 
 function getAccount() {
     // 用户输入用户名，默认为随机不重复用户名（时间戳编码，截取前10位）
-    let username = prompt("请输入用户名：", Date.now().toString(36).substr(0, 10)) + "@just.vip";
+    let username = prompt("请输入用户名：", Date.now().toString(36).substr(0, 10));
+    if (username == null) {
+        return;
+    }
+    username = username + "@just.vip";
     // 用户输入密码，默认为用户名+随机码（3位字符）, md5加密
     let pwd = prompt("请输入密码：", username + Math.random().toString(36).substr(2, 3));
-    // md5 not defined
+    if (pwd == null) {
+        return;
+    }
     password = md5(pwd);
     // deviceId为随机生成的UUID
     let deviceId = uuid.v4();
