@@ -57,6 +57,8 @@ function fuckBook118(){
         imageUrls.push(item.getElementsByTagName('img')[0].src);
     }
     let filename = document.getElementsByTagName('h1')[0].innerText;
+    // 将filename文件名后缀去掉
+    filename = filename.split('.').slice(0, -1).join('.');
     let downloadIndex = prompt('你将要下载' + filename + ', 可拼接' + imageUrls.length + '张图片, 请输入区间，用逗号隔开，直接输入数字代表截止区间: ');
     let indeies = downloadIndex.split(',');
     if(indeies.length > 1){
