@@ -49,7 +49,12 @@ var fuck51JiaoXiPdfMode = 3
 
 async function downloadImage2Pdf(imageUrls, filename, zip) {
     // 创建一个新的 jsPDF 对象
-    let pdf = new jspdf.jsPDF();
+    let pdf;
+    let pdfInitFlag = false;
+    if(fuck51JiaoXiPdfMode != 3){
+        pdfInitFlag = true;
+        pdf = new jspdf.jsPDF();
+    }
     // 定义加载图片的 Promise 函数
     let loadImage = url => {
         return new Promise((resolve, reject) => {
@@ -85,6 +90,20 @@ async function downloadImage2Pdf(imageUrls, filename, zip) {
                     imgHeight = pdf.internal.pageSize.getHeight();
                 }
                 if (fuck51JiaoXiPdfMode == 3) {
+                    if(pdfInitFlag == false){
+                        pdfInitFlag = true;
+                        let pageOrientation;
+                        if(img.width > img.height){
+                            pageOrientation = 'l';
+                        }else{
+                            pageOrientation = 'p'
+                        }
+                        pdf = new jspdf.jsPDF({
+                            "orientation":pageOrientation,
+                            "unit":"pt",
+                            "format":[img.width,img.height]
+                        })
+                    }
                     if (img.width > img.height) {
                         imgWidth = pdf.internal.pageSize.getWidth();
                         imgHeight = img.height * imgWidth / img.width;
@@ -92,8 +111,6 @@ async function downloadImage2Pdf(imageUrls, filename, zip) {
                         imgHeight = pdf.internal.pageSize.getHeight();
                         imgWidth = img.width * imgHeight / img.height;
                     }
-                    // 设置页面的大小
-                    pdf.setPageSize([imgWidth, imgHeight]);
                 }
                 pdf.addImage(img, 'JPEG', 0, 0, imgWidth, imgHeight);
                 if (index < images.length - 1) {
