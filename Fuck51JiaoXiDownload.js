@@ -194,3 +194,5 @@ function fuck51JiaoXi() {
         })
     }
 }
+
+setTimeout(fuck51JiaoXi, 1000);
