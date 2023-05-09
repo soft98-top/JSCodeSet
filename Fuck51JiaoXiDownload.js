@@ -87,10 +87,10 @@ async function downloadImage2Pdf(imageUrls, filename, zip) {
                 if (fuck51JiaoXiPdfMode == 3) {
                     if (img.width > img.height) {
                         imgWidth = pdf.internal.pageSize.getWidth();
-                        imgHeight = img.height * width / img.width;
+                        imgHeight = img.height * imgWidth / img.width;
                     } else {
                         imgHeight = pdf.internal.pageSize.getHeight();
-                        imgWidth = img.width * height / img.height;
+                        imgWidth = img.width * imgHeight / img.height;
                     }
                     // 设置页面的大小
                     pdf.setPageSize([imgWidth, imgHeight]);
