@@ -45,18 +45,11 @@ async function send(method, url, data = "", jsonSwitch = true) {
 var fuck51JiaoXiFiles = {}
 var fuck51JiaoXiProxy = 'http://127.0.0.1:5000/proxy?url='
 // 1 缩放 2 拉伸 3 图片即页面
-var fuck51JiaoXiPdfMode = 1
+var fuck51JiaoXiPdfMode = 3
 
 async function downloadImage2Pdf(imageUrls, filename, zip) {
     // 创建一个新的 jsPDF 对象
-    let pdf;
-    if (fuck51JiaoXiPdfMode == 3) {
-        pdf = new jspdf.jsPDF({
-            unit: "pt" // 以 pt 为单位
-        });
-    } else {
-        pdf = new jspdf.jsPDF();
-    }
+    let pdf = new jspdf.jsPDF();
     // 定义加载图片的 Promise 函数
     let loadImage = url => {
         return new Promise((resolve, reject) => {
@@ -92,8 +85,15 @@ async function downloadImage2Pdf(imageUrls, filename, zip) {
                     imgHeight = pdf.internal.pageSize.getHeight();
                 }
                 if (fuck51JiaoXiPdfMode == 3) {
-                    imgWidth = img.width;
-                    imgHeight = img.height;
+                    if (img.width > img.height) {
+                        imgWidth = pdf.internal.pageSize.getWidth();
+                        imgHeight = img.height * width / img.width;
+                    } else {
+                        imgHeight = pdf.internal.pageSize.getHeight();
+                        imgWidth = img.width * height / img.height;
+                    }
+                    // 设置页面的大小
+                    pdf.setPageSize([imgWidth, imgHeight]);
                 }
                 pdf.addImage(img, 'JPEG', 0, 0, imgWidth, imgHeight);
                 if (index < images.length - 1) {
