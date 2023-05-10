@@ -118,7 +118,12 @@ async function downloadImage2Pdf(imageUrls, filename, zip) {
                 }
             });
             if (zip) {
-                zip.file(`${filename}.pdf`, pdf.output('arraybuffer'));
+                try{
+                    zip.file(`${filename}.pdf`, pdf.output('arraybuffer'));
+                }catch(e){
+                    // console.log(e);
+                    console.log(filename + '下载失败');
+                }
             } else {
                 pdf.save(`${filename}.pdf`);
             }
