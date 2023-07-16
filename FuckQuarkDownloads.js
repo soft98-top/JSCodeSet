@@ -59,7 +59,7 @@ function getDownloadUrl(fids,key) {
     } else {
         data.fids.push(fids);
     }
-    send("POST", "https://drive.quark.cn/1/clouddrive/file/download", data).then((data) => {
+    send("POST", "https://drive.quark.cn/1/clouddrive/file/download?pr=ucpro&fr=pc", data).then((data) => {
         if (data.code == 0) {
             urls[key] = [];
             for (let i = 0; i < data.data.length; i++) {
@@ -76,7 +76,7 @@ function getDownloadUrl(fids,key) {
 
 // 获取目录下载地址
 function getDownloadUrl4Dir(task_data, retry = 0,key) {
-    send("GET", "https://drive.quark.cn/1/clouddrive/download/list/export", task_data, false).then((data1) => {
+    send("GET", "https://drive.quark.cn/1/clouddrive/download/list/export?pr=ucpro&fr=pc", task_data, false).then((data1) => {
         if (data1 == "") {
             // 重试
             if (retry < 5) {
@@ -185,7 +185,7 @@ function fuckDownloadDir(fid, mode = "link") {
     let data = {
         "current_dir_fid": fid
     };
-    send("POST", "https://drive.quark.cn/1/clouddrive/download/list", data).then((data) => {
+    send("POST", "https://drive.quark.cn/1/clouddrive/download/list?pr=ucpro&fr=pc", data).then((data) => {
         if (data.code == 0) {
             let task_data = {
                 "task_id": data.data['task_id']
