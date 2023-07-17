@@ -48,23 +48,34 @@ async function send(method, url, data = "", jsonSwitch = true) {
 
 var urls = {};
 var fileFlag = {};
+var filesInfo = {};
+var isShare = window.location.hash.startsWith("#/list/share") 
 
 // 通过fids获取下载地址
 function getDownloadUrl(fids,key) {
     let data = {
         "fids": []
     }
+    let downloadApi = "https://drive.quark.cn/1/clouddrive/file/download?pr=ucpro&fr=pc";
+    if (isShare) {
+        downloadApi = "https://drive-pc.quark.cn/1/clouddrive/file/share/download";
+        let shareInfo = JSON.parse(sessionStorage._share_args).value;
+        data["pwd_id"] = shareInfo.pwd_id;
+        data["stoken"] = shareInfo.stoken;
+    }
     if (typeof (fids) == "object") {
         data.fids = fids;
     } else {
         data.fids.push(fids);
     }
-    send("POST", "https://drive.quark.cn/1/clouddrive/file/download?pr=ucpro&fr=pc", data).then((data) => {
+    send("POST", downloadApi, data).then((data) => {
         if (data.code == 0) {
             urls[key] = [];
+            filesInfo[key] = [];
             for (let i = 0; i < data.data.length; i++) {
                 let url = data.data[i].download_url
                 urls[key].push(url);
+                filesInfo[key].push(data.data[i])
             }
             fileFlag[key] = true;
             console.log(urls[key].join("\n"));
@@ -170,13 +181,33 @@ function download2zip(urls) {
 
 
 // download函数，根据模式选择下载方式
-function download(urls, mode) {
+function download(key, mode) {
+    let urlList = urls[key];
     if (mode == "zip") {
-        download2zip(urls);
+        download2zip(urlList);
     } else {
-        // 打开所有链接
-        for (let i = 0; i < urls.length; i++) {
-            window.open(urls[i]);
+        if (isShare){
+            let files = filesInfo[key];
+            for(let file of files){
+                // 根据fid获取元素
+                let downButton = document.getElementById(file.fid);
+                // 生成一个a标签，设置href为下载地址，设置download属性为文件名，模拟点击下载
+                let a = document.createElement("a");
+                a.href = file.download_url;
+                a.download = file.file_name;
+                // 设置taget为_blank，防止跳转
+                a.target = "_blank";
+                // 设置显示
+                a.innerText = "下载链接";
+                // 将a标签添加到downButton中
+                downButton.innerHTML = "";
+                downButton.appendChild(a);
+            }
+        }else{
+            // 打开所有链接
+            for (let i = 0; i < urlList.length; i++) {
+                window.open(urlList[i]);
+            }
         }
     }
 }
@@ -197,7 +228,7 @@ function fuckDownloadDir(fid, mode = "link") {
             let timer = setInterval(() => {
                 if (fileFlag[key]) {
                     clearInterval(timer);
-                    download(urls[key], mode);
+                    download(key, mode);
                 }
             }, 1000);
         } else {
@@ -214,32 +245,30 @@ function fuckDownload(fid) {
     let timer = setInterval(() => {
         if (fileFlag[key]) {
             clearInterval(timer);
-            download(urls[key]);
+            download(key);
         }
     }, 1000);
 }
 
 function fuckDownloads() {
-    fileTr = $("tr[data-row-key]");
+    let fileTr = $("tr[data-row-key]");
     for (let i = 0; i < fileTr.length; i++) {
         file = fileTr[i];
         let fid = file.getAttribute("data-row-key");
         let sizeTd = file.getElementsByTagName("td")[2];
         if (sizeTd.getAttribute("isfucked") != "yes") {
             if (sizeTd.innerText == "-") {
-                sizeTd.innerHTML = sizeTd.innerText + "<button onclick='fuckDownloadDir(\"" + fid + "\")'>-> DownDir <-</button>" + "<button onclick='fuckDownloadDir(\"" + fid + "\",\"zip\")'>-> Down2Zip <-</button>";
+                if (isShare){
+                    continue
+                }
+                sizeTd.innerHTML = sizeTd.innerText + "<span id='"+ fid +"'><button onclick='fuckDownloadDir(\"" + fid + "\")'>-> DownDir <-</button>" + "<button onclick='fuckDownloadDir(\"" + fid + "\",\"zip\")'>-> Down2Zip <-</button></span>";
             } else {
-                sizeTd.innerHTML = sizeTd.innerText + "<button onclick='fuckDownload(\"" + fid + "\")'>-> Down <-</button>";
+                sizeTd.innerHTML = sizeTd.innerText + "<span id='"+ fid +"'><button onclick='fuckDownload(\"" + fid + "\")'>-> Down <-</button></span>";
             }
             sizeTd.setAttribute("isfucked", "yes");
         }
     }
 }
-
-/*
-    定义一个函数，下载
-*/
-
 
 function startFuck() {
     try {
