@@ -1,4 +1,4 @@
-let url = "https://g.justproxy.ml/soft98-top/JSCodeSet/raw/main/FuckBook118Download.js";
+let url = "https://g.proxy.soft98.top/soft98-top/JSCodeSet/raw/main/FuckBook118Download.js";
 let jsid = "FuckBook118Download"
 let xhr = new XMLHttpRequest();
     xhr.open("GET", url, false);
