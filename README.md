@@ -5,7 +5,7 @@
 ### 简介
 - FuckQuarkDownloads
   - 夸克网盘内文件网页端下载突破（已失效）
-  - 夸克网盘分享链接下载（2023.7.17 新增）
+  - 夸克网盘分享链接下载（2023.7.17 新增）(已失效)
 - NeatReaderAccountGen
   - NeatReader账号生成，需要在NeatReader官网点击运行
 - WebpackSourcemapDownload

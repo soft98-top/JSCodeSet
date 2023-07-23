@@ -56,9 +56,9 @@ function getDownloadUrl(fids,key) {
     let data = {
         "fids": []
     }
-    let downloadApi = "https://drive.quark.cn/1/clouddrive/file/download?pr=ucpro&fr=pc";
+    let downloadApi = "https://drive-pc.quark.cn/1/clouddrive/file/download?pr=ucpro&fr=pc";
     if (isShare) {
-        downloadApi = "https://drive-pc.quark.cn/1/clouddrive/file/share/download";
+        downloadApi = "https://drive-pc.quark.cn/1/clouddrive/file/share/download?fr=pc";
         let shareInfo = JSON.parse(sessionStorage._share_args).value;
         data["pwd_id"] = shareInfo.pwd_id;
         data["stoken"] = shareInfo.stoken;
@@ -87,11 +87,14 @@ function getDownloadUrl(fids,key) {
 
 // 获取目录下载地址
 function getDownloadUrl4Dir(task_data, retry = 0,key) {
-    send("GET", "https://drive.quark.cn/1/clouddrive/download/list/export?pr=ucpro&fr=pc", task_data, false).then((data1) => {
+    send("GET", "https://drive-pc.quark.cn/1/clouddrive/download/list/export?pr=ucpro&fr=pc", task_data, false).then((data1) => {
         if (data1 == "") {
             // 重试
             if (retry < 5) {
-                getDownloadUrl4Dir(task_data, retry + 1,key);
+                // 延迟 1秒执行
+                setTimeout(() => {
+                    getDownloadUrl4Dir(task_data, retry + 1,key);
+                }, 1000); 
             }
         } else {
             let fids = data1.match(/([a-zA-Z0-9]{32}?)+/g);
@@ -100,7 +103,8 @@ function getDownloadUrl4Dir(task_data, retry = 0,key) {
     });
 }
 
-function download2zip(urls) {
+function download2zip(key) {
+    var files = filesInfo[key];
     // 下载进度显示区域
     let infoContainer = document.getElementById("donwloadInfo");
     if (infoContainer == null) {
@@ -128,9 +132,10 @@ function download2zip(urls) {
     // 创建一个新的zip对象
     let zip = new JSZip();
     // 遍历文件列表
-    urls.forEach(function (url) {
+    files.forEach(function (file) {
+        var url = file.download_url;
         // 获取文件名,使用正则表达式匹配,如果匹配不到则使用时间戳作为文件名,url中的文件名可能会被编码,所以需要decodeURIComponent解码
-        var filename = url.match(/filename=(.+?)&/)[1];
+        var filename = file.file_name;
         if (filename == undefined) {
             filename = new Date().getTime();
         } else {
@@ -184,7 +189,7 @@ function download2zip(urls) {
 function download(key, mode) {
     let urlList = urls[key];
     if (mode == "zip") {
-        download2zip(urlList);
+        download2zip(key);
     } else {
         if (isShare){
             let files = filesInfo[key];
@@ -216,7 +221,12 @@ function fuckDownloadDir(fid, mode = "link") {
     let data = {
         "current_dir_fid": fid
     };
-    send("POST", "https://drive.quark.cn/1/clouddrive/download/list?pr=ucpro&fr=pc", data).then((data) => {
+    if (isShare) {
+        let shareInfo = JSON.parse(sessionStorage._share_args).value;
+        data["pwd_id"] = shareInfo.pwd_id;
+        data["stoken"] = shareInfo.stoken;
+    }
+    send("POST", "https://drive-pc.quark.cn/1/clouddrive/download/list?pr=ucpro&fr=pc", data).then((data) => {
         if (data.code == 0) {
             let task_data = {
                 "task_id": data.data['task_id']
@@ -258,9 +268,9 @@ function fuckDownloads() {
         let sizeTd = file.getElementsByTagName("td")[2];
         if (sizeTd.getAttribute("isfucked") != "yes") {
             if (sizeTd.innerText == "-") {
-                if (isShare){
-                    continue
-                }
+                // if (isShare){
+                //     continue
+                // }
                 sizeTd.innerHTML = sizeTd.innerText + "<span id='"+ fid +"'><button onclick='fuckDownloadDir(\"" + fid + "\")'>-> DownDir <-</button>" + "<button onclick='fuckDownloadDir(\"" + fid + "\",\"zip\")'>-> Down2Zip <-</button></span>";
             } else {
                 sizeTd.innerHTML = sizeTd.innerText + "<span id='"+ fid +"'><button onclick='fuckDownload(\"" + fid + "\")'>-> Down <-</button></span>";
