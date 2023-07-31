@@ -1,4 +1,4 @@
-let url = "https://g.proxy.soft98.top/soft98-top/JSCodeSet/raw/main/WebPackSourcemapDownload.js";
+let url = "https://g.proxy.soft98.top/soft98-top/JSCodeSet/raw/main/WebpackSourcemapDownload.js";
 let jsid = "WebPackSourcemapDownload"
 let xhr = new XMLHttpRequest();
     xhr.open("GET", url, false);
