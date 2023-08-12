@@ -34,3 +34,6 @@ def proxy():
 
     except requests.exceptions.RequestException as e:
         return f'请求出错: {e}'
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=5000, debug=True, threaded=True)

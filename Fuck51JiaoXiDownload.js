@@ -66,68 +66,120 @@ async function downloadImage2Pdf(imageUrls, filename, zip) {
         });
     };
 
-    // 使用 <img> 加载所有图片，并将它们添加到 PDF 中
-    await Promise.all(imageUrls.map(url => loadImage(url)))
-        .then(images => {
-            images.forEach((img, index) => {
-                let imgWidth, imgHeight;
-                if (fuck51JiaoXiPdfMode == 1) {
-                    // 获取页面宽度和高度
-                    let pageWidth = pdf.internal.pageSize.getWidth();
-                    let pageHeight = pdf.internal.pageSize.getHeight();
-                    // 根据图片宽高比例计算出它在 PDF 中的宽度和高度
-                    let imgRatio = img.width / img.height;
-                    if (imgRatio > pageWidth / pageHeight) {
-                        imgWidth = pageWidth;
-                        imgHeight = imgWidth / imgRatio;
-                    } else {
-                        imgHeight = pageHeight;
-                        imgWidth = imgHeight * imgRatio;
-                    }
-                }
-                if (fuck51JiaoXiPdfMode == 2) {
-                    imgWidth = pdf.internal.pageSize.getWidth();
-                    imgHeight = pdf.internal.pageSize.getHeight();
-                }
-                if (fuck51JiaoXiPdfMode == 3) {
-                    if(pdfInitFlag == false){
-                        pdfInitFlag = true;
-                        let pageOrientation;
-                        if(img.width > img.height){
-                            pageOrientation = 'l';
-                        }else{
-                            pageOrientation = 'p'
-                        }
-                        pdf = new jspdf.jsPDF({
-                            "orientation":pageOrientation,
-                            "unit":"pt",
-                            "format":[img.width,img.height]
-                        })
-                    }
-                    if (img.width > img.height) {
-                        imgWidth = pdf.internal.pageSize.getWidth();
-                        imgHeight = img.height * imgWidth / img.width;
-                    } else {
-                        imgHeight = pdf.internal.pageSize.getHeight();
-                        imgWidth = img.width * imgHeight / img.height;
-                    }
-                }
-                pdf.addImage(img, 'JPEG', 0, 0, imgWidth, imgHeight);
-                if (index < images.length - 1) {
-                    pdf.addPage();
-                }
-            });
-            if (zip) {
-                try{
-                    zip.file(`${filename}.pdf`, pdf.output('arraybuffer'));
-                }catch(e){
-                    // console.log(e);
-                    console.log(filename + '下载失败');
-                }
+    // 使用 <img> 加载所有图片，并将它们添加到 PDF 中, 增加一点延时，避免 url 过多
+    let delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    for (let i = 0; i < imageUrls.length; i++) {
+        let img = await loadImage(imageUrls[i]);
+        let imgWidth, imgHeight;
+        if (fuck51JiaoXiPdfMode == 1) {
+            // 获取页面宽度和高度
+            let pageWidth = pdf.internal.pageSize.getWidth();
+            let pageHeight = pdf.internal.pageSize.getHeight();
+            // 根据图片宽高比例计算出它在 PDF 中的宽度和高度
+            let imgRatio = img.width / img.height;
+            if (imgRatio > pageWidth / pageHeight) {
+                imgWidth = pageWidth;
+                imgHeight = imgWidth / imgRatio;
             } else {
-                pdf.save(`${filename}.pdf`);
+                imgHeight = pageHeight;
+                imgWidth = imgHeight * imgRatio;
             }
-        });
+        }
+        if (fuck51JiaoXiPdfMode == 2) {
+            imgWidth = pdf.internal.pageSize.getWidth();
+            imgHeight = pdf.internal.pageSize.getHeight();
+        }
+        if (fuck51JiaoXiPdfMode == 3) {
+            if(pdfInitFlag == false){
+                pdfInitFlag = true;
+                let pageOrientation;
+                if(img.width > img.height){
+                    pageOrientation = 'l';
+                }else{
+                    pageOrientation = 'p'
+                }
+                pdf = new jspdf.jsPDF(pageOrientation, 'pt', [img.width, img.height]);
+            }
+            imgWidth = img.width;
+            imgHeight = img.height;
+        }
+        pdf.addImage(img, 'JPEG', 0, 0, imgWidth, imgHeight);
+        if (i < imageUrls.length - 1) {
+            pdf.addPage();
+        }
+        await delay(100);
+    }
+    if (zip) {
+        try{
+            zip.file(`${filename}.pdf`, pdf.output('arraybuffer'));
+        }catch(e){
+            // console.log(e);
+            console.log(filename + '下载失败');
+        }
+    } else {
+        pdf.save(`${filename}.pdf`);
+    }
+    // await Promise.all(imageUrls.map(url => loadImage(url)))
+    //     .then(images => {
+    //         images.forEach((img, index) => {
+    //             let imgWidth, imgHeight;
+    //             if (fuck51JiaoXiPdfMode == 1) {
+    //                 // 获取页面宽度和高度
+    //                 let pageWidth = pdf.internal.pageSize.getWidth();
+    //                 let pageHeight = pdf.internal.pageSize.getHeight();
+    //                 // 根据图片宽高比例计算出它在 PDF 中的宽度和高度
+    //                 let imgRatio = img.width / img.height;
+    //                 if (imgRatio > pageWidth / pageHeight) {
+    //                     imgWidth = pageWidth;
+    //                     imgHeight = imgWidth / imgRatio;
+    //                 } else {
+    //                     imgHeight = pageHeight;
+    //                     imgWidth = imgHeight * imgRatio;
+    //                 }
+    //             }
+    //             if (fuck51JiaoXiPdfMode == 2) {
+    //                 imgWidth = pdf.internal.pageSize.getWidth();
+    //                 imgHeight = pdf.internal.pageSize.getHeight();
+    //             }
+    //             if (fuck51JiaoXiPdfMode == 3) {
+    //                 if(pdfInitFlag == false){
+    //                     pdfInitFlag = true;
+    //                     let pageOrientation;
+    //                     if(img.width > img.height){
+    //                         pageOrientation = 'l';
+    //                     }else{
+    //                         pageOrientation = 'p'
+    //                     }
+    //                     pdf = new jspdf.jsPDF({
+    //                         "orientation":pageOrientation,
+    //                         "unit":"pt",
+    //                         "format":[img.width,img.height]
+    //                     })
+    //                 }
+    //                 if (img.width > img.height) {
+    //                     imgWidth = pdf.internal.pageSize.getWidth();
+    //                     imgHeight = img.height * imgWidth / img.width;
+    //                 } else {
+    //                     imgHeight = pdf.internal.pageSize.getHeight();
+    //                     imgWidth = img.width * imgHeight / img.height;
+    //                 }
+    //             }
+    //             pdf.addImage(img, 'JPEG', 0, 0, imgWidth, imgHeight);
+    //             if (index < images.length - 1) {
+    //                 pdf.addPage();
+    //             }
+    //         });
+    //         if (zip) {
+    //             try{
+    //                 zip.file(`${filename}.pdf`, pdf.output('arraybuffer'));
+    //             }catch(e){
+    //                 // console.log(e);
+    //                 console.log(filename + '下载失败');
+    //             }
+    //         } else {
+    //             pdf.save(`${filename}.pdf`);
+    //         }
+    //     });
 }
 
 
